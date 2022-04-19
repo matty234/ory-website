@@ -73,7 +73,8 @@ const stats = (state: StateTypes) => [
   {
     title: 'Requests secured',
     amount: state.requests.amount,
-    description: `in ${dateformat(state.requests.date, 'mmmm yyyy')}`
+    //description: `until ${dateformat(state.requests.date, 'mmmm yyyy')}`
+    description: `overall`
   },
   {
     title: 'Docker pulls',
@@ -203,20 +204,23 @@ class Stats extends Component<PropTypes, StateTypes> {
         })
       })
 
-      let max: number[] = [0, 0]
+      let current: number[] = [0, 0]
       Object.keys(requests).forEach((date: string) => {
         const amount = requests[parseInt(date)]
 
-        if (amount > max[1]) {
-          max = [parseInt(date), amount]
+        if (parseInt(date) < Date.now()) {
+          if (parseInt(date) > current[0]) {
+            current[0] = parseInt(date)
+          }
+          current[1] = current[1] + amount
         }
       })
 
       this.setState(() => {
         return {
           requests: {
-            amount: max[1],
-            date: new Date(max[0])
+            amount: current[1],
+            date: new Date(current[0])
           }
         }
       })
